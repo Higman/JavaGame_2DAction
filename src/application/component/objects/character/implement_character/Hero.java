@@ -3,40 +3,35 @@ package application.component.objects.character.implement_character;
 import application.component.objects.ImageManager;
 import application.component.objects.RectangleCollisionObject;
 import application.component.objects.character.PlayableCharacter;
+import application.component.objects.system_object.imprement_system_onject.CharacterHeart;
 import application.component.system.GameEnvironment;
+import application.component.system.GameManager;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.shape.Rectangle;
 
 import java.awt.*;
 
 
 public class Hero extends PlayableCharacter {
-    private static String WAIT_IMAGE = "/images/player/wait.png";
-    private static String LEFT_IMAGE = "/images/player/left.png";
-    private static String RIGHT_IMAGE = "/images/player/right.png";
-    private static String HEART_IMAGE = "/images/heart.png";
-    private static String JUMP_IMAGE = "/images/player/jump.png";
-    private static String DEAD_IMAGE = "/images/enemy/dead.png";
-    public static int DEFAULT_SPEED = 10;
-    public static int JUMP_SPEED = -14;
-    public static int MAX_SPEED = 100;
-    public static int DEFAULT_HP = 100;
+    private static final String WAIT_IMAGE = "/images/player/wait.png";
+    private static final String LEFT_IMAGE = "/images/player/left.png";
+    private static final String RIGHT_IMAGE = "/images/player/right.png";
+    private static final String JUMP_IMAGE = "/images/player/jump.png";
+    private static final String DEAD_IMAGE = "/images/enemy/dead.png";
 
-    public static int HEART_DEFAULT_SIZE = 10;
-
-    private Rectangle collRect;
+    public static final int DEFAULT_SPEED = 10;
+    public static final int JUMP_SPEED = -14;
+    public static final int MAX_SPEED = 100;
+    public static final int DEFAULT_HP = 100;
 
     private Point collisionRelativeDistance;
 
-    private Group playerImage;
-    private ImageView heartView;  // 体力表示用のハート画像
-    private static ColorAdjust screenLight = new ColorAdjust();  // ハート画像の色を変えるエフェクト
+    private CharacterHeart heart;  // 体力表示
 
-    public Hero(Point pos) {        
+    private Group playerImage;
+
+    public Hero(Point pos) {
         super(pos);
         this.setOnGround(false);
 
@@ -57,29 +52,28 @@ public class Hero extends PlayableCharacter {
         
         imageManager.showImage(ImageManager.ObjectStatus.WAIT);
 
-        // 体力関連
-        Image heart = new Image(HEART_IMAGE, HEART_DEFAULT_SIZE, HEART_DEFAULT_SIZE, true, true);;
-
-        heartView =  new ImageView(heart);
-        playerImage = new Group(imageManager.getImageView(), heartView);
-        heartView.setEffect(screenLight);
-
         //=== 衝突物体の相対距離算出
         collisionRelativeDistance = new Point(-(int)(waitImage.getWidth() / 2), -(int)(waitImage.getHeight() / 2));
 
         //=== 衝突物体関連
         RectangleCollisionObject rectCO = new RectangleCollisionObject(position.x + collisionRelativeDistance.x,
                 position.y + collisionRelativeDistance.y, (int)waitImage.getWidth(), (int) waitImage.getHeight());
-//        rectCO.addEvent((o, e, a) -> System.out.println("  ヒーロー衝突"));
         collisionObject = rectCO;
 
         moveImage();
+
+        //=== 体力表示
+        heart = new CharacterHeart(pos, this);
+        GameManager.addGameObject(heart);
     }
 
     @Override
     public void move() {
         position.setLocation(position.x + speed.x, position.y + speed.y);
         collisionObject.transfer( position.x + collisionRelativeDistance.x, position.y + collisionRelativeDistance.y);
+
+        heart.getPosition().setLocation(position.x, position.y);
+        heart.updateImage(); // 体力画像の更新
 
         moveImage();
     }
@@ -100,12 +94,8 @@ public class Hero extends PlayableCharacter {
     }
 
     @Override
-//    public Node getImage() {
-//        return imageManager.getImageView();
-//    }
     public Node getImage() {
-//        return new Group(collRect, imageManager.getImageView());
-        return playerImage;
+        return imageManager.getImageView();
     }
 
     @Override
@@ -148,20 +138,20 @@ public class Hero extends PlayableCharacter {
             // 待機状態
             imageManager.showImage(ImageManager.ObjectStatus.WAIT);
         }
-        
+
         // 死んだ状態
-        if (this.hp == 0) {
+        if (this.hp <= 0) {
             imageManager.showImage(ImageManager.ObjectStatus.DEAD);
         }
     }
 
     @Override
+    public void beforeDelete() {
+        GameManager.removeGameObject(heart);
+    }
+
+    @Override
     protected void moveImage() {
         super.moveImage();
-
-        heartView.setX(getPosition().x - HEART_DEFAULT_SIZE / 2);
-        heartView.setY(getPosition().y - GameEnvironment.getBlockScale() / 2 - HEART_DEFAULT_SIZE );
-
-        screenLight.setBrightness( getHp() / (double)DEFAULT_HP - 1);
     }
 }

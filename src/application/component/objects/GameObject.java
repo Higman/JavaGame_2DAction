@@ -39,4 +39,9 @@ public abstract class GameObject {
      * 画像の移動
      */
     protected abstract void moveImage();
+
+    /**
+     * 削除時呼び出される動作
+     */
+    public abstract void beforeDelete();
 }

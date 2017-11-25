@@ -14,6 +14,7 @@ public abstract class PlayableCharacter extends Character implements MovableObje
     protected Point speed = new Point();  // キャラクタの移動スピード
     public final int DEFAULT_SPEED = 10;   // 標準のスピード
     public final int DEFAULT_RANGE = 200;  // 標準索敵範囲
+    public static final int DEFAULT_HP = 100;  // 標準体力
     protected boolean onGround;              // 接地しているかどうか
 
     public boolean isOnGround() {

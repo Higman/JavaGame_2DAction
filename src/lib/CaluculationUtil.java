@@ -1,9 +1,12 @@
 package lib;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 /**
  * 画像に関するメソッドライブラリ
  */
-public class ImageUtil {
+public class CaluculationUtil {
 
     /**
      * 与えたサイズを基準となるサイズ比に補正したサイズを算出
@@ -26,5 +29,22 @@ public class ImageUtil {
         }
 
         return new TupleUtil.Tuple2<>(width, height);
+    }
+
+    public static String timeFormat(long startTime, long endTime) {
+        Calendar start = Calendar.getInstance();
+        Calendar end = Calendar.getInstance();
+        Calendar result = Calendar.getInstance();
+
+        start.setTimeInMillis(startTime);
+        end.setTimeInMillis(endTime);
+
+        long sa = end.getTimeInMillis() - start.getTimeInMillis() - result.getTimeZone().getRawOffset();
+
+        result.setTimeInMillis(sa);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("mm:ss:SSS");
+
+        return sdf.format(result.getTime());
     }
 }

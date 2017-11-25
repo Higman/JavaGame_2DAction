@@ -16,7 +16,9 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
+import lib.CaluculationUtil;
 import lib.TupleUtil;
 
 import java.awt.*;
@@ -42,6 +44,9 @@ public class GameManager {
     private DrawPanelManager dpm;       // パネル管理
     private InputManager inputManager;  // 入力キー管理
 
+    private Text timeTextField;  // 時間表示用
+    private long startTime = 0;  // ゲーム開始時間
+
     /**
      * インスタンスの取得
      *
@@ -49,10 +54,11 @@ public class GameManager {
      * @param stageNum the stage num
      * @return the instance
      */
-    public static GameManager getInstance(Pane drawPane, int stageNum) {
+    public static GameManager getInstance(Pane drawPane, int stageNum, Text timeTextField) {
         ourInstance.stageNum = stageNum;
         ourInstance.drawPane = drawPane;
         ourInstance.inputManager = new InputManager();
+        ourInstance.timeTextField = timeTextField;
         return ourInstance;
     }
 
@@ -91,6 +97,7 @@ public class GameManager {
     }
 
     public static void removeGameObject(GameObject go) {
+        go.beforeDelete();
         ourInstance.dpm.removeGameObject(go);
     }
 
@@ -182,6 +189,7 @@ public class GameManager {
             e.printStackTrace();
             // TODO 例外が発生した場合のデフォルトデータを用意する。仮マップは、GameFactoryクラスかGameMapクラスのクラスメソッドから取得する
         }
+        startTime = System.currentTimeMillis();  // 開始時間の記録
     }
 
     /**
@@ -231,6 +239,9 @@ public class GameManager {
     private class GameProcessTask implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
+            //== ゲームUIの更新
+            timeTextField.setText(CaluculationUtil.timeFormat(startTime, System.currentTimeMillis()));
+
             //== 有効範囲の更新
             moveRangeOfActivities();
 
