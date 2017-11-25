@@ -15,5 +15,16 @@
          </font>
       </Text>
       <Button fx:id="pauseButton" layoutX="5.0" layoutY="5.0" mnemonicParsing="false" onAction="#pauseAction" text="P" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0" />
+      <AnchorPane fx:id="pausePane" layoutX="150.0" layoutY="100.0" prefHeight="200.0" prefWidth="300.0" style="-fx-background-color: #808080c0;" visible="false">
+         <children>
+            <Text layoutX="113.0" layoutY="57.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pause">
+               <font>
+                  <Font size="29.0" />
+               </font>
+            </Text>
+            <Button fx:id="titleButton" layoutX="126.0" layoutY="100.0" mnemonicParsing="false" onAction="#clickTitleButton" text="Title" />
+            <Button fx:id="exitButton" layoutX="129.0" layoutY="144.0" mnemonicParsing="false" onAction="#clickExitButton" text="exit" />
+         </children>
+      </AnchorPane>
    </children>
 </AnchorPane>
