@@ -5,8 +5,6 @@ import application.component.objects.character.implement_character.Hero;
 import application.component.objects.character.implement_character.Monster;
 import application.component.objects.stage.implement_stage.GoalBlock;
 import application.component.objects.stage.implement_stage.RectangleStageBlock;
-import application.component.objects.stage.implement_stage.TMPStageBlock;
-import com.sun.javafx.geom.Point2D;
 
 import java.awt.*;
 import java.util.Optional;

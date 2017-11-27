@@ -54,6 +54,11 @@ public class GoalBlock extends StageObject {
     }
 
     @Override
+    public void beforeDelete() {
+
+    }
+
+    @Override
     public Node getImage() {
         return imageManager.getImageView();
     }

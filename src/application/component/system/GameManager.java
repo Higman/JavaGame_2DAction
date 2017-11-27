@@ -16,7 +16,9 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
+import lib.GameTimer;
 import lib.TupleUtil;
 
 import java.awt.*;
@@ -36,11 +38,14 @@ public class GameManager {
     private Pane drawPane;    // 使用するパネル
 
     private GameProcessState gameState = GameProcessState.STOP;  // ゲームの状態
-    private Timeline gameTimer;        // ゲームプロセス用タイマー
+    private Timeline gameTimeline;        // ゲームプロセス用タイマー
     private Player player;          // プレイヤーコントローラ
 
     private DrawPanelManager dpm;       // パネル管理
     private InputManager inputManager;  // 入力キー管理
+
+    private Text timeTextField;  // 時間表示用
+    private GameTimer gameTimer;  // 計測用のタイマー
 
     /**
      * インスタンスの取得
@@ -49,10 +54,13 @@ public class GameManager {
      * @param stageNum the stage num
      * @return the instance
      */
-    public static GameManager getInstance(Pane drawPane, int stageNum) {
+    public static GameManager getInstance(Pane drawPane, int stageNum, Text timeTextField) {
         ourInstance.stageNum = stageNum;
         ourInstance.drawPane = drawPane;
         ourInstance.inputManager = new InputManager();
+        ourInstance.timeTextField = timeTextField;
+        ourInstance.gameTimer = new GameTimer();
+
         return ourInstance;
     }
 
@@ -91,6 +99,7 @@ public class GameManager {
     }
 
     public static void removeGameObject(GameObject go) {
+        go.beforeDelete();
         ourInstance.dpm.removeGameObject(go);
     }
 
@@ -126,6 +135,9 @@ public class GameManager {
             } catch ( NotGameProcessException e ) {
                 e.printStackTrace();
             }
+
+            // タイマーの計測開始
+            gameTimer.start();
         }
     }
 
@@ -135,8 +147,9 @@ public class GameManager {
     public void pause() {
         // ゲームが実行中であれば、停止
         if ( gameState == RUN ) {
-            gameTimer.stop();  // 停止
-            gameTimer = null;    // 破棄
+            gameTimer.pause();    // タイマーの一時停止
+            gameTimeline.stop();  // 停止
+            gameTimeline = null;    // 破棄
             gameState = PAUSE;   // 状態の更新
         }
     }
@@ -163,9 +176,9 @@ public class GameManager {
         }
 
         // 実行
-        gameTimer = new Timeline(new KeyFrame(Duration.millis(PROCESS_INTERVAL_MILLISECOND), new GameProcessTask()));
-        gameTimer.setCycleCount(Timeline.INDEFINITE);
-        gameTimer.play();
+        gameTimeline = new Timeline(new KeyFrame(Duration.millis(PROCESS_INTERVAL_MILLISECOND), new GameProcessTask()));
+        gameTimeline.setCycleCount(Timeline.INDEFINITE);
+        gameTimeline.play();
 
         gameState = RUN;                    // 状態の更新
     }
@@ -231,6 +244,9 @@ public class GameManager {
     private class GameProcessTask implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
+            //== ゲームUIの更新
+            timeTextField.setText(gameTimer.getTimeString());
+
             //== 有効範囲の更新
             moveRangeOfActivities();
 

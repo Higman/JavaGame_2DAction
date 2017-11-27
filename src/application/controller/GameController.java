@@ -3,6 +3,7 @@ package application.controller;
 import application.Main;
 import application.component.system.GameManager;
 import application.component.system.InputManager;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -11,20 +12,23 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
+import javafx.scene.control.Button;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ResourceBundle;
 
 public class GameController implements Initializable {
 
-    @FXML
-    protected AnchorPane root;
-    @FXML
-    protected Pane drawPane;
+    @FXML protected AnchorPane root;
+    @FXML protected Pane drawPane;
+    @FXML protected Text timeTextField;
+
+    @FXML protected Button pauseButton;
+    @FXML protected AnchorPane pausePane;
+    @FXML protected Button titleButton;
+    @FXML protected Button exitButton;
 
     protected static final GameController gc;  // GameControllerインスタンス
     protected static final Scene SCENE;
@@ -56,7 +60,7 @@ public class GameController implements Initializable {
     }
 
     public static GameController getInstance(int num) {
-        gc.gameManager = GameManager.getInstance(gc.drawPane, num);
+        gc.gameManager = GameManager.getInstance(gc.drawPane, num, gc.timeTextField);
         gc.gameManager.start();
         return gc;
     }
@@ -80,8 +84,31 @@ public class GameController implements Initializable {
      *
      * @param event the event
      */
+    @FXML
     public void onKeyReleased(KeyEvent event) {
         changeKeyState(event, false);
+    }
+
+    @FXML
+    public void pauseAction(ActionEvent event) {
+        pausePane.setVisible(true);    // ポーズパネルの表示
+        pauseButton.setDisable(true);  // ポーズボタンの無効化
+        gameManager.pause();           // ゲームの一時停止
+    }
+
+    @FXML
+    public void clickTitleButton(ActionEvent event) {
+        TitleController.getInstance().show();  // タイトル画面へ
+        pausePane.setVisible(false);    // ポーズ画面の非表示
+        pauseButton.setDisable(false);  // ポーズボタンの有効化
+        gameManager.stop();             // ゲームの停止
+    }
+
+    @FXML
+    public void clickExitButton(ActionEvent event) {
+        pausePane.setVisible(false);    // ポーズ画面の非表示
+        pauseButton.setDisable(false);  // ポーズボタンの有効化
+        gameManager.start();            // ゲームの再開
     }
 
     /**
